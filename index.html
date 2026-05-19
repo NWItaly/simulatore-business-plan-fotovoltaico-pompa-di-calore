@@ -39,6 +39,19 @@
   --sh-1:0 1px 2px rgba(13,12,11,0.04);
   --sh-2:0 2px 8px rgba(13,12,11,0.06);
   --sh-3:0 8px 24px rgba(13,12,11,0.08);
+
+  /* Colori pastello per pannelli */
+  --p01-bg:#fff8f0; --p01-border:#f5dfc0;
+  --p02-bg:#f0f7ff; --p02-border:#c8dff5;
+  --p03-bg:#f0fff4; --p03-border:#b8e8c8;
+  --p04-bg:#fdf0ff; --p04-border:#e8c8f0;
+  --p05-bg:#fff0f0; --p05-border:#f0c8c8;
+  --p06-bg:#fffff0; --p06-border:#e8e0a8;
+  --p07-bg:#f0f8f0; --p07-border:#b8d8b8;
+  --p08-bg:#faf0ff; --p08-border:#dcc8f0;
+
+  /* Readonly */
+  --readonly-bg:#f0f0ee;
 }
 
 /* ─── Reset & base ────────────────────────────────────────── */
@@ -134,6 +147,48 @@ button,input{font-family:inherit;color:inherit}
 }
 .menu-pop-item:hover{background:var(--surface-alt)}
 
+/* Barra filtro sezioni */
+.section-toggles{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:8px 32px;
+  background:var(--surface-alt);
+  border-bottom:1px solid var(--line);
+  font-size:11px;color:var(--ink-3);
+}
+.section-toggles-label{
+  font-size:11px;font-weight:600;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;
+}
+.sec-tog{
+  height:26px;padding:0 10px;
+  border-radius:13px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink-2);
+  font-size:11px;font-weight:500;cursor:pointer;
+  transition:all .15s var(--ease);white-space:nowrap;
+}
+.sec-tog:hover{background:var(--surface);border-color:var(--line-strong);color:var(--ink)}
+.sec-tog.excluded{
+  background:var(--surface-alt);color:var(--mute);
+  text-decoration:line-through;border-color:var(--line);
+}
+
+/* Selettore durata piano */
+.plan-years-wrap{
+  display:flex;align-items:center;gap:6px;margin-left:auto;
+}
+.plan-years-label{
+  font-size:11px;font-weight:600;color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;
+}
+.plan-years-sel{
+  height:26px;padding:0 8px;
+  border-radius:6px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);
+  font-size:12px;font-weight:500;cursor:pointer;
+  outline:none;
+}
+.plan-years-sel:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(10,9,8,0.07)}
+
 /* ─── Chips ───────────────────────────────────────────────── */
 .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1;min-width:0}
 .chip{
@@ -176,6 +231,20 @@ button,input{font-family:inherit;color:inherit}
   margin-bottom: 8px;
 }
 .panel:hover{border-color:var(--line-strong)}
+
+/* Colori pastello per ciascun pannello */
+#p-inv{background:var(--p01-bg);border-color:var(--p01-border)}
+#p-fv {background:var(--p02-bg);border-color:var(--p02-border)}
+#p-bat{background:var(--p03-bg);border-color:var(--p03-border)}
+#p-tar{background:var(--p04-bg);border-color:var(--p04-border)}
+#p-cons{background:var(--p05-bg);border-color:var(--p05-border)}
+#p-inc{background:var(--p06-bg);border-color:var(--p06-border)}
+#p-fin{background:var(--p07-bg);border-color:var(--p07-border)}
+#p-man{background:var(--p08-bg);border-color:var(--p08-border)}
+
+/* Pannelli esclusi via toggle */
+.panel.section-excluded{opacity:.45;transition:opacity .25s}
+.panel.section-excluded .pb{display:none}
 .ph{
   padding:18px 22px;
   display:flex;align-items:center;gap:14px;
@@ -232,6 +301,18 @@ button,input{font-family:inherit;color:inherit}
   -moz-appearance:textfield;width:100%;
 }
 .iu input::-webkit-outer-spin-button,.iu input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* Campi readonly: sfondo grigio */
+.iu input[readonly]{
+  background:var(--readonly-bg);
+  color:var(--ink-3);
+  cursor:default;
+}
+
+/* Campi numerici: testo allineato a destra */
+.iu input[type=number]{
+  text-align:right;
+}
 .unit{
   padding:0 12px;
   display:flex;align-items:center;
@@ -371,8 +452,37 @@ input[type=range]::-moz-range-thumb{
 .kcard.is-neg .kval{color:var(--neg)}
 .ksub{font-size:11px;color:var(--ink-3);margin-top:10px;letter-spacing:0;line-height:1.4}
 
-/* ─── Chart ───────────────────────────────────────────────── */
-.chart-panel{
+/* ─── Chart tooltip ───────────────────────────────────────── */
+.chart-tip{
+  position:absolute;
+  background:var(--ink);
+  color:#fff;
+  border-radius:8px;
+  padding:8px 11px;
+  font-size:12px;
+  font-family:var(--font-sans);
+  line-height:1.6;
+  pointer-events:none;
+  z-index:100;
+  white-space:nowrap;
+  box-shadow:var(--sh-3);
+  opacity:0;
+  transform:translateY(4px);
+  transition:opacity .12s var(--ease), transform .12s var(--ease);
+}
+.chart-tip.visible{opacity:1;transform:translateY(0)}
+.chart-tip-title{
+  font-size:10px;font-weight:600;letter-spacing:0.07em;
+  text-transform:uppercase;color:rgba(255,255,255,0.6);
+  margin-bottom:3px;
+}
+.chart-tip-row{display:flex;align-items:center;gap:7px}
+.chart-tip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.chart-tip-label{color:rgba(255,255,255,0.7);font-size:11px}
+.chart-tip-val{margin-left:auto;font-family:var(--font-mono);font-size:12px;font-weight:600}
+.chart-tip-sep{height:1px;background:rgba(255,255,255,0.15);margin:5px 0}
+/* Il wrapper dei canvas deve essere position:relative per il posizionamento assoluto */
+.chart-panel{position:relative}
   background:var(--surface);
   border:1px solid var(--line);
   border-radius:14px;
@@ -598,6 +708,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
   .menu-btn{display:inline-flex;flex-shrink:0}
 
   .savebar{display:none}
+  .section-toggles{display:none}
 
   .wrap{
     padding:16px 14px calc(96px + env(safe-area-inset-bottom));
@@ -716,7 +827,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
     <div class="hdr-mark">FV</div>
     <div>
       <div class="hdr-title">Fotovoltaico + Accumulo</div>
-      <div class="hdr-sub">Business plan 25 anni · profilo orario annuale</div>
+      <div class="hdr-sub" id="hdr-sub">Business plan 25 anni · profilo orario annuale</div>
     </div>
   </div>
   <div class="hdr-r">Piano analitico</div>
@@ -733,6 +844,14 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
   <button class="btn" onclick="loadSimulation()">Carica</button>
   <button class="btn" onclick="shareSimulation()" title="Genera un link con i parametri correnti da condividere">Condividi</button>
   <div class="menu-wrap">
+    <button class="btn" onclick="togglePresetsMenu(event)" title="Carica una simulazione preimpostata">⚡ Preset</button>
+    <div class="menu-pop" id="presetsMenu" role="menu">
+      <button class="menu-pop-item" role="menuitem" onclick="closePresetsMenu(); loadPreset(1)">☀️ Solo FV 3 kWp</button>
+      <button class="menu-pop-item" role="menuitem" onclick="closePresetsMenu(); loadPreset(2)">🔋 FV 6 kWp + Batteria 11 kWh</button>
+      <button class="menu-pop-item" role="menuitem" onclick="closePresetsMenu(); loadPreset(3)">⚡ FV 12 kWp + Batteria 21 kWh</button>
+    </div>
+  </div>
+  <div class="menu-wrap">
     <button class="btn btn-icon" onclick="toggleMoreMenu(event)" aria-label="Altre opzioni" aria-haspopup="menu" title="Altre azioni">
       <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
     </button>
@@ -743,6 +862,25 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
   </div>
   <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importPresets(event)">
   <div class="chips" id="chips"></div>
+</div>
+
+<!-- SECTION TOGGLES BAR -->
+<div class="section-toggles" id="sectionTogglesBar">
+  <span class="section-toggles-label">Mostra sezioni</span>
+  <button class="sec-tog" id="tog-p-bat" onclick="toggleSection('p-bat','tog-p-bat')">03 · Accumulo</button>
+  <button class="sec-tog" id="tog-p-cons" onclick="toggleSection('p-cons','tog-p-cons')">05 · Combustibile</button>
+  <button class="sec-tog" id="tog-p-inc" onclick="toggleSection('p-inc','tog-p-inc')">06 · Incentivi</button>
+  <button class="sec-tog" id="tog-p-fin" onclick="toggleSection('p-fin','tog-p-fin')">07 · Finanziamento</button>
+  <button class="sec-tog" id="tog-p-man" onclick="toggleSection('p-man','tog-p-man')">08 · Manutenzione</button>
+  <div class="plan-years-wrap">
+    <span class="plan-years-label">Durata piano</span>
+    <select class="plan-years-sel" id="planYears" onchange="calc()">
+      <option value="20">20 anni</option>
+      <option value="25" selected>25 anni</option>
+      <option value="30">30 anni</option>
+      <option value="35">35 anni</option>
+    </select>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -921,24 +1059,25 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
           <div class="iu"><input type="number" id="discRate" value="3.0" step="0.1" min="0" max="10" oninput="calc()"><span class="unit">%/anno</span></div>
           <div class="fhint">Tasso reale per attualizzare i flussi futuri. Un €1 nel 2050 vale meno di €1 oggi: il NPV mostra il valore presente del cumulato. Tipico: 2–4 %.</div>
         </div>
+        <div class="sep"></div>
+        <div class="f">
+          <div class="fl"><label>Fabbisogno elettrico annuo</label></div>
+          <div class="iu"><input type="number" id="fabbEE" value="13000" oninput="calc()"><span class="unit">kWh/a</span></div>
+          <div class="fhint">Consumo elettrico totale annuo dell'utenza. Usi base + eventuale pompa di calore. Tipicamente 3.500–6.000 kWh/a per un appartamento, 8.000–15.000 kWh/a per una villa con pompa di calore.</div>
+        </div>
       </div>
     </div>
 
-    <!-- CONSUMI & COMBUSTIBILE -->
+    <!-- RISPARMIO COMBUSTIBILE -->
     <div class="panel" id="p-cons">
       <div class="ph" onclick="togglePanel('p-cons')">
         <span class="ph-num">05</span>
-        <h2>Consumi & risparmio combustibile</h2>
+        <h2>Risparmio combustibile</h2>
         <span class="ph-arr">▾</span>
       </div>
       <div class="pb">
         <div class="ibox ibox-blue">
-          La pompa di calore sostituisce il vecchio impianto di riscaldamento: il <strong>fabbisogno elettrico</strong> aumenta (riscaldamento + ACS), mentre la <strong>spesa per il combustibile</strong> si azzera. Calcola entrambi i valori a regime.
-        </div>
-        <div class="f">
-          <div class="fl"><label>Fabbisogno EE post-pompa</label></div>
-          <div class="iu"><input type="number" id="fabbEE" value="13000" oninput="calc()"><span class="unit">kWh/a</span></div>
-          <div class="fhint">Consumo elettrico totale annuo: usi base (illuminazione, elettrodomestici) + pompa di calore. Tipicamente 8.000–15.000 kWh/a per una villa unifamiliare.</div>
+          Inserisci il risparmio annuo sul combustibile (gas, GPL, gasolio, pellet…) eliminato grazie alla pompa di calore o ad altra sostituzione. Se non hai una pompa di calore puoi <strong>disattivare questa sezione</strong> con il toggle in alto.
         </div>
         <div class="f">
           <div class="fl"><label>Risparmio combustibile anno 1</label></div>
@@ -1092,7 +1231,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
         <div class="ksub">Considerando capitale finanziato e rate</div>
       </div>
       <div class="kcard" id="kcardNet">
-        <div class="klabel">Vantaggio netto · 25 anni</div>
+        <div class="klabel">Vantaggio netto · <span id="kYearsLabel">25</span> anni</div>
         <div class="kval" id="kNet">—</div>
         <div class="ksub">Nominale · NPV: <strong id="kNetNPV">—</strong></div>
       </div>
@@ -1118,14 +1257,30 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
         <div class="li"><span class="ld" style="background:#a39f97"></span>Break-even</div>
       </div>
       <canvas id="chartCanvas" height="260"></canvas>
+      <div class="chart-tip" id="tipFinancial"></div>
     </div>
 
     </div><!-- /tab results -->
 
+    <!-- CHART ENERGETICO STAGIONALE -->
+    <div class="chart-panel tab-pane is-active" data-tab="results" style="margin-top:0">
+      <div class="chart-hdr">
+        <h3>Profilo energetico stagionale</h3>
+      </div>
+      <div class="legend">
+        <div class="li"><span class="ld" style="background:#f59e0b"></span>Produzione FV</div>
+        <div class="li"><span class="ld" style="background:#10b981"></span>Autoconsumo</div>
+        <div class="li"><span class="ld" style="background:#6366f1"></span>Carica batteria</div>
+        <div class="li"><span class="ld" style="background:#e5e7eb;border:1px solid #aaa"></span>Consumo residuo rete</div>
+      </div>
+      <canvas id="chartEnergy" height="220"></canvas>
+      <div class="chart-tip" id="tipEnergy"></div>
+    </div>
+
     <!-- TABLE -->
     <div class="tpanel tab-pane" data-tab="table">
       <div class="thdr">
-        <h3>Piano analitico 25 anni</h3>
+        <h3>Piano analitico <span id="tableYearsLabel">25</span> anni</h3>
         <div class="thdr-meta">
           <span class="pill"><span class="pill-dot" style="background:#fdf5d3"></span>Anno payback</span>
           <span class="pill"><span class="pill-dot" style="background:#fbeed4"></span>Manutenzione</span>
@@ -1145,6 +1300,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
               <th>C.Termico</th>
               <th>Incentivo<br>Revamping</th>
               <th>Costo EE<br>residuo</th>
+              <th>Costo EE<br>totale anno</th>
               <th>Manutenz.<br>(annua + str.)</th>
               <th>TOT.<br>VANTAGGI</th>
               <th>Cumul.<br>senza fin.</th>
@@ -1232,6 +1388,29 @@ function getDaily(){
 }
 const BASELINE_FV = 13168;   // produzione totale del profilo di riferimento (kWh)
 const BASELINE_USE = 7894;   // consumo totale del profilo di riferimento (kWh)
+
+// Pesi mensili del consumo: distribuzione relativa (somma = 12).
+// Profilo "PdC attiva": d'inverno il riscaldamento domina, d'estate quasi nulla la PdC.
+// Usato sia dalla distribuzione energetica sia dal grafico stagionale.
+const MONTHLY_CONS_WEIGHTS = [
+  1.85, // Gen  — riscaldamento pieno
+  1.70, // Feb
+  1.40, // Mar  — avvio primavera
+  0.90, // Apr
+  0.65, // Mag
+  0.50, // Giu  — quasi solo uso domestico base
+  0.45, // Lug
+  0.45, // Ago
+  0.60, // Set
+  0.90, // Ott
+  1.30, // Nov
+  1.70, // Dic  — riscaldamento pieno
+]; // tot = 12.40 → normalizziamo in getMonthlyConsKwh()
+
+function getMonthlyConsKwh(annualKwh){
+  const tot = MONTHLY_CONS_WEIGHTS.reduce((a,b) => a+b, 0);
+  return MONTHLY_CONS_WEIGHTS.map(w => annualKwh * w / tot);
+}
 
 // Simulazione giornaliera: ritorna {auto, bat, rid} in kWh/anno per dato (prod, cons, batCap)
 function simulateDistribution(prodFV, consEE, batCap){
@@ -1359,12 +1538,19 @@ function readParams(){
   const pctBat     = Math.min(rngBat,  pctBatMax);
   const pctRID     = Math.max(0, 1 - pctInstant - pctBat);
 
+  // Sezioni escluse: azzera i valori che non contribuiscono al calcolo
+  const excBat  = EXCLUDED_SECTIONS.has('p-bat');
+  const excCons = EXCLUDED_SECTIONS.has('p-cons');
+  const excInc  = EXCLUDED_SECTIONS.has('p-inc');
+  const excFin  = EXCLUDED_SECTIONS.has('p-fin');
+  const excMan  = EXCLUDED_SECTIONS.has('p-man');
+
   return {
     costFV: num('costFV'), costBat: num('costBat'), costHP: num('costHP'), costElec: num('costElec'),
     prodFV,
     degradFV: num('degradFV') / 100,
-    batCap,
-    batRT: num('batRT') / 100,
+    batCap: excBat ? 0 : batCap,
+    batRT: excBat ? 0 : num('batRT') / 100,
     pctInstant, pctBat, pctRID,
     pctInstMax, pctBatMax,
     rngInstRaw: rngInst, rngBatRaw: rngBat,
@@ -1374,16 +1560,19 @@ function readParams(){
     prezzoEE: num('prezzoEE'), prezzoRID: num('prezzoRID'),
     inflEE: num('inflEE') / 100, inflRID: num('inflRID') / 100,
     discRate: num('discRate') / 100,
-    fabbEE,
-    rispGPL: num('rispGPL'),
-    totDetr: num('totDetr'), durDetr: num('durDetr'),
-    contoTermico: num('contoTermico'),
-    kwhRev: num('kwhRev'), tarRev: num('tarRev'), anniRev: num('anniRev'),
-    inclRev: state.inclRev,
-    capFin: num('capFin'), durFin: num('durFin'), tassoFin: num('tassoFin') / 100, rataFin: pmt(num('capFin'), num('tassoFin') / 100, num('durFin')),
-    useMaint: state.useMaint,
+    fabbEE: fabbEE,
+    rispGPL: excCons ? 0 : num('rispGPL'),
+    totDetr:      excInc ? 0 : num('totDetr'), durDetr: num('durDetr'),
+    contoTermico: excInc ? 0 : num('contoTermico'),
+    kwhRev: excInc ? 0 : num('kwhRev'), tarRev: num('tarRev'), anniRev: num('anniRev'),
+    inclRev: excInc ? false : state.inclRev,
+    capFin: excFin ? 0 : num('capFin'),
+    durFin: num('durFin'), tassoFin: num('tassoFin') / 100,
+    rataFin: excFin ? 0 : pmt(num('capFin'), num('tassoFin') / 100, num('durFin')),
+    useMaint: excMan ? false : state.useMaint,
     annoMaint: num('annoMaint'), costoMaint: num('costoMaint'),
-    maintYearly: num('maintYearly'),
+    maintYearly: excMan ? 0 : num('maintYearly'),
+    planYears: parseInt(document.getElementById('planYears').value) || 25,
   };
 }
 
@@ -1403,11 +1592,13 @@ function batFactor(n, p){
   if(n <= 1) return 1;
   if(n <= 10) return 1 - (1 - p.batCap10) * (n-1) / 9;
   if(n <= 20) return p.batCap10 - (p.batCap10 - p.batCap20) * (n-10) / 10;
-  return p.batCap20 - (p.batCap20 - p.batCap25) * (n-20) / 5;
+  // Oltre anno 20: estrapola linearmente dal trend 20→batCap25 (anno 25)
+  const slope = (p.batCap20 - p.batCap25) / 5;
+  return Math.max(0.3, p.batCap20 - slope * (n - 20));
 }
 
 // ─────────────────────────────────────────────
-// CALCULATE 25-YEAR PLAN
+// CALCULATE N-YEAR PLAN
 // ─────────────────────────────────────────────
 function calcPlan(p){
   const inv = p.costFV + p.costBat + p.costHP + p.costElec;
@@ -1417,7 +1608,7 @@ function calcPlan(p){
   let cumNPV = -inv;
   let paybackSimple = null, paybackFin = null;
 
-  for(let n = 1; n <= 25; n++){
+  for(let n = 1; n <= p.planYears; n++){
     const infl = Math.pow(1 + p.inflEE, n-1);
     const inflRid = Math.pow(1 + p.inflRID, n-1);
     const fvDeg = Math.pow(1 - p.degradFV, n-1);
@@ -1441,9 +1632,11 @@ function calcPlan(p){
     // Risparmio combustibile
     const val_gpl = p.rispGPL * infl;
 
-    // Costo EE residuo (NEGATIVO)
+    // Costo EE residuo (NEGATIVO) e costo totale EE consumata
     const kwh_import = Math.max(0, p.fabbEE - kwh_inst - kwh_bat);
     const val_ee = -(kwh_import * prezzo);
+    // Costo totale energia consumata anno n (senza FV farebbe questo)
+    const val_ee_tot = -(p.fabbEE * prezzo);
 
     // Detrazione fiscale
     const val_detr = n <= p.durDetr ? p.totDetr / p.durDetr : 0;
@@ -1480,9 +1673,9 @@ function calcPlan(p){
     cumNPV += tot / Math.pow(1 + p.discRate, n);
 
     rows.push({ n, fvProd, val_inst, val_bat, val_rid, val_gpl, val_detr, val_ct,
-                val_rev, val_ee, val_maint, tot, cumSimple, rata, flussoFin, cumFin });
+                val_rev, val_ee, val_ee_tot, val_maint, tot, cumSimple, rata, flussoFin, cumFin });
   }
-  return { rows, inv, cumSimple, cumFin, cumNPV, paybackSimple, paybackFin };
+  return { rows, inv, cumSimple, cumFin, cumNPV, paybackSimple, paybackFin, planYears: p.planYears };
 }
 
 // ─────────────────────────────────────────────
@@ -1550,15 +1743,20 @@ function calc(){
   document.getElementById('kwhBat').innerHTML     = kBat.toLocaleString('it-IT')  + ' kWh' + tag(capBat,  p.pctBatMax);
   document.getElementById('kwhRID').innerHTML     = kRID.toLocaleString('it-IT')  + ' kWh';
 
-  const { rows, cumSimple, cumFin, cumNPV, paybackSimple, paybackFin } = calcPlan(p);
+  const { rows, cumSimple, cumFin, cumNPV, paybackSimple, paybackFin, planYears } = calcPlan(p);
   chartData = rows;
+
+  // Aggiorna etichette durata piano
+  document.getElementById('kYearsLabel').textContent = planYears;
+  document.getElementById('tableYearsLabel').textContent = planYears;
+  document.getElementById('hdr-sub').textContent = `Business plan ${planYears} anni · profilo orario annuale`;
 
   // KPIs — il suffisso usa <span class="kval-suffix"> per stile più discreto
   const sfx = (s) => `<span class="kval-suffix">${s}</span>`;
   const pbEl = document.getElementById('kPayback');
-  pbEl.innerHTML = paybackSimple ? `${paybackSimple} ${sfx('anni')}` : `&gt;&nbsp;25 ${sfx('anni')}`;
+  pbEl.innerHTML = paybackSimple ? `${paybackSimple} ${sfx('anni')}` : `&gt;&nbsp;${p.planYears} ${sfx('anni')}`;
   const pbFinEl = document.getElementById('kPaybackFin');
-  pbFinEl.innerHTML = paybackFin ? `${paybackFin} ${sfx('anni')}` : `&gt;&nbsp;25 ${sfx('anni')}`;
+  pbFinEl.innerHTML = paybackFin ? `${paybackFin} ${sfx('anni')}` : `&gt;&nbsp;${p.planYears} ${sfx('anni')}`;
   const netV = Math.round(cumSimple);
   const netEl = document.getElementById('kNet');
   netEl.innerHTML = (netV >= 0 ? '+€ ' : '−€ ') + Math.abs(netV).toLocaleString('it-IT');
@@ -1568,7 +1766,7 @@ function calc(){
   const netCard = document.getElementById('kcardNet');
   netCard.classList.toggle('is-pos', netV >= 0);
   netCard.classList.toggle('is-neg', netV < 0);
-  const roi = inv > 0 ? (cumSimple / inv / 25 * 100) : 0;
+  const roi = inv > 0 ? (cumSimple / inv / p.planYears * 100) : 0;
   document.getElementById('kROI').innerHTML = roi.toFixed(1).replace('.', ',') + ' ' + sfx('% / anno');
 
   // Table
@@ -1588,6 +1786,7 @@ function calc(){
       <td>${r.val_ct > 0 ? fmtE(r.val_ct) : '<span class="z">—</span>'}</td>
       <td>${r.val_rev > 0 ? (p.inclRev ? fmtE(r.val_rev) : '<span style="color:var(--light);font-size:10px">excl. '+Math.round(r.val_rev).toLocaleString('it-IT')+'</span>') : '<span class="z">—</span>'}</td>
       <td>${fmtE(r.val_ee)}</td>
+      <td>${fmtE(r.val_ee_tot)}</td>
       <td>${r.val_maint < 0 ? fmtE(r.val_maint) : '<span class="z">—</span>'}</td>
       <td style="font-weight:700">${fmtE(r.tot)}</td>
       <td style="font-weight:700">${fmtE(r.cumSimple)}</td>
@@ -1605,9 +1804,10 @@ function calc(){
     val_rid: a.val_rid+r.val_rid, val_gpl: a.val_gpl+r.val_gpl,
     val_detr: a.val_detr+r.val_detr, val_ct: a.val_ct+r.val_ct,
     val_rev: a.val_rev+r.val_rev, val_ee: a.val_ee+r.val_ee,
+    val_ee_tot: a.val_ee_tot+r.val_ee_tot,
     val_maint: a.val_maint+r.val_maint, tot: a.tot+r.tot,
     rata: a.rata+r.rata
-  }), {fvProd:0,val_inst:0,val_bat:0,val_rid:0,val_gpl:0,val_detr:0,val_ct:0,val_rev:0,val_ee:0,val_maint:0,tot:0,rata:0});
+  }), {fvProd:0,val_inst:0,val_bat:0,val_rid:0,val_gpl:0,val_detr:0,val_ct:0,val_rev:0,val_ee:0,val_ee_tot:0,val_maint:0,tot:0,rata:0});
   document.getElementById('tFoot').innerHTML = `<tr>
     <td>TOT.</td>
     <td>${fmtKwh(totals.fvProd)}</td>
@@ -1619,15 +1819,18 @@ function calc(){
     <td>${fmtE(totals.val_ct)}</td>
     <td>${fmtE(p.inclRev ? totals.val_rev : 0)}</td>
     <td>${fmtE(totals.val_ee)}</td>
+    <td>${fmtE(totals.val_ee_tot)}</td>
     <td>${fmtE(totals.val_maint)}</td>
     <td style="font-weight:800">${fmtE(totals.tot)}</td>
-    <td style="font-weight:800">${fmtE(rows[24].cumSimple)}</td>
+    <td style="font-weight:800">${fmtE(rows[rows.length-1].cumSimple)}</td>
     <td>${fmtE(-totals.rata)}</td>
     <td></td>
-    <td style="font-weight:800">${fmtE(rows[24].cumFin)}</td>
+    <td style="font-weight:800">${fmtE(rows[rows.length-1].cumFin)}</td>
   </tr>`;
 
   drawChart();
+  drawEnergyChart();
+  updateTableColumns();
 }
 
 // ─────────────────────────────────────────────
@@ -1670,7 +1873,7 @@ function drawChart(){
   const range = maxV - minV || 1;
   const pad20 = range * 0.1;
 
-  function xOf(i){ return pad.left + (i / 24) * cw; }
+  function xOf(i){ return pad.left + (i / (chartData.length)) * cw; }
   function yOf(v){ return pad.top + ch - ((v - minV + pad20) / (range + 2 * pad20)) * ch; }
   const y0 = yOf(0);
 
@@ -1692,7 +1895,7 @@ function drawChart(){
   ctx.beginPath();
   ctx.moveTo(xOf(0), yOf(dataSimple[0]));
   dataSimple.forEach((v, i) => ctx.lineTo(xOf(i), yOf(v)));
-  ctx.lineTo(xOf(24), yOf(0));
+  ctx.lineTo(xOf(chartData.length), yOf(0));
   ctx.lineTo(xOf(0), yOf(0));
   ctx.closePath();
   const fillColor = dataSimple[dataSimple.length-1] >= 0 ? 'rgba(10,9,8,0.05)' : 'rgba(165,22,22,0.05)';
@@ -1714,7 +1917,7 @@ function drawChart(){
 
   // Dots on simple
   dataSimple.forEach((v, i) => {
-    if(i % 4 === 0 || i === 24){
+    if(i % Math.max(1, Math.floor(chartData.length/6)) === 0 || i === chartData.length-1){
       ctx.beginPath(); ctx.arc(xOf(i), yOf(v), 3, 0, Math.PI*2);
       ctx.fillStyle = '#0a0908'; ctx.fill();
       ctx.beginPath(); ctx.arc(xOf(i), yOf(v), 5, 0, Math.PI*2);
@@ -1726,9 +1929,13 @@ function drawChart(){
   ctx.fillStyle = '#a39f97';
   ctx.font = '10.5px Inter, Outfit, sans-serif';
   ctx.textAlign = 'center';
-  for(let i = 0; i <= 24; i += 4){
-    ctx.fillText(i === 0 ? 'OGGI' : 'A' + i, xOf(i), h - 10);
+  const nYears = chartData.length;
+  const step = nYears <= 20 ? 4 : 5;
+  for(let i = 0; i <= nYears; i += step){
+    const xi = Math.min(i, nYears - 1);
+    ctx.fillText(xi === 0 ? 'OGGI' : 'A' + xi, xOf(xi), h - 10);
   }
+  if(nYears % step !== 0) ctx.fillText('A' + (nYears-1), xOf(nYears-1), h - 10);
 
   // Y axis labels
   ctx.textAlign = 'right';
@@ -1742,10 +1949,432 @@ function drawChart(){
     ctx.fillStyle = '#6b6862';
     ctx.fillText(label, pad.left - 8, y + 3.5);
   }
+
+  // ── Tooltip interattivo ──────────────────────────────────
+  // Salva parametri di layout per il mousemove handler
+  canvas._chartMeta = { pad, cw, ch, dataSimple, dataFin, chartMode,
+    xOf, yOf, w, h, minV, maxV, pad20, range };
+
+  // Registra handler solo una volta
+  if(!canvas._tipHandler){
+    const tip = document.getElementById('tipFinancial');
+
+    function showFinancialTip(e){
+      const meta = canvas._chartMeta;
+      if(!meta || !chartData.length) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const mx = clientX - rect.left;
+      const my = clientY - rect.top;
+
+      // Trova l'indice più vicino sull'asse X
+      const { pad: p2, cw: cw2 } = meta;
+      if(mx < p2.left || mx > p2.left + cw2){ tip.classList.remove('visible'); return; }
+      const frac = (mx - p2.left) / cw2;
+      const idx = Math.min(Math.round(frac * (chartData.length - 1)), chartData.length - 1);
+      if(idx < 0){ tip.classList.remove('visible'); return; }
+
+      const row = chartData[idx];
+      const vSimple = meta.dataSimple[idx];
+      const vFin    = meta.dataFin[idx];
+      const fmtTip = v => {
+        const sign = v >= 0 ? '+' : '−';
+        return sign + '€\u202f' + Math.abs(Math.round(v)).toLocaleString('it-IT');
+      };
+
+      const isAnnual = meta.chartMode === 'annual';
+      const labelS = isAnnual ? 'Flusso annuo' : 'Cumulato';
+      const labelF = isAnnual ? 'Flusso c/fin.' : 'Cumul. c/fin.';
+
+      tip.innerHTML = `
+        <div class="chart-tip-title">Anno ${row.n}</div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#0a0908"></span>
+          <span class="chart-tip-label">${labelS}</span>
+          <span class="chart-tip-val" style="color:${vSimple>=0?'#6ee7a0':'#fca5a5'}">${fmtTip(vSimple)}</span>
+        </div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#9a4a06"></span>
+          <span class="chart-tip-label">${labelF}</span>
+          <span class="chart-tip-val" style="color:${vFin>=0?'#6ee7a0':'#fca5a5'}">${fmtTip(vFin)}</span>
+        </div>
+        ${!isAnnual ? `<div class="chart-tip-sep"></div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-label" style="font-size:10px">Flusso anno</span>
+          <span class="chart-tip-val" style="font-size:11px">${fmtTip(row.tot)}</span>
+        </div>` : ''}`;
+
+      tip.classList.add('visible');
+
+      // Posiziona il tooltip
+      const tipW = 190, tipH = 90;
+      let tx = mx + 12;
+      let ty = my - 20;
+      if(tx + tipW > rect.width) tx = mx - tipW - 12;
+      if(ty < 4) ty = 4;
+      if(ty + tipH > rect.height) ty = rect.height - tipH - 4;
+      tip.style.left = tx + 'px';
+      tip.style.top  = ty + 'px';
+
+      // Linea verticale di riferimento
+      const meta2 = canvas._chartMeta;
+      drawChart();
+      const ctx2 = canvas.getContext('2d');
+      const dpr2 = window.devicePixelRatio || 1;
+      ctx2.save();
+      ctx2.scale(dpr2, dpr2);
+      const xLine = meta2.xOf(idx);
+      ctx2.strokeStyle = 'rgba(10,9,8,0.18)'; ctx2.lineWidth = 1; ctx2.setLineDash([3,3]);
+      ctx2.beginPath(); ctx2.moveTo(xLine, meta2.pad.top); ctx2.lineTo(xLine, meta2.pad.top + meta2.ch); ctx2.stroke();
+      ctx2.setLineDash([]);
+      // Cerchio evidenziato
+      [meta2.dataSimple, meta2.dataFin].forEach((d, di) => {
+        ctx2.beginPath();
+        ctx2.arc(xLine, meta2.yOf(d[idx]), 5, 0, Math.PI*2);
+        ctx2.fillStyle = di===0 ? '#0a0908' : '#9a4a06'; ctx2.fill();
+        ctx2.beginPath();
+        ctx2.arc(xLine, meta2.yOf(d[idx]), 7, 0, Math.PI*2);
+        ctx2.strokeStyle = di===0 ? '#0a0908' : '#9a4a06'; ctx2.lineWidth = 1.5; ctx2.stroke();
+      });
+      ctx2.restore();
+    }
+
+    function hideTip(){ tip.classList.remove('visible'); drawChart(); }
+
+    canvas.addEventListener('mousemove', showFinancialTip);
+    canvas.addEventListener('touchmove', showFinancialTip, {passive:true});
+    canvas.addEventListener('mouseleave', hideTip);
+    canvas.addEventListener('touchend', hideTip, {passive:true});
+    canvas._tipHandler = true;
+  }
 }
 
 // ─────────────────────────────────────────────
-// SAVE / LOAD (localStorage)
+// TOGGLE SEZIONI 5–8
+// ─────────────────────────────────────────────
+const EXCLUDED_SECTIONS = new Set();
+
+function toggleSection(panelId, togId){
+  const panel = document.getElementById(panelId);
+  const tog = document.getElementById(togId);
+  if(!panel || !tog) return;
+  if(EXCLUDED_SECTIONS.has(panelId)){
+    EXCLUDED_SECTIONS.delete(panelId);
+    panel.classList.remove('section-excluded');
+    tog.classList.remove('excluded');
+  } else {
+    EXCLUDED_SECTIONS.add(panelId);
+    panel.classList.add('section-excluded');
+    tog.classList.add('excluded');
+  }
+  // Aggiorna visibilità colonne tabella
+  updateTableColumns();
+  calc();
+}
+
+// Mappa pannello → indice colonna tabella (0-based, la prima colonna "Anno" è 0)
+const SECTION_COL_MAP = {
+  'p-bat':  [3],             // Autocons. batteria (col 3)
+  'p-cons': [5],             // Risp. combustibile (col 5)
+  'p-inc':  [6, 7, 8],       // Detr., C.Termico, Revamping (col 6-8)
+  'p-fin':  [14, 15, 16],    // Rata fin., Flusso c/fin., Cumul c/fin.
+  'p-man':  [11],            // Manutenz. (col 11)
+};
+
+function updateTableColumns(){
+  const table = document.querySelector('table');
+  if(!table) return;
+  const allHidden = new Set();
+  for(const [pid, cols] of Object.entries(SECTION_COL_MAP)){
+    if(EXCLUDED_SECTIONS.has(pid)) cols.forEach(c => allHidden.add(c));
+  }
+  // thead e tbody
+  table.querySelectorAll('tr').forEach(tr => {
+    tr.querySelectorAll('th, td').forEach((cell, i) => {
+      cell.style.display = allHidden.has(i) ? 'none' : '';
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+// PRESET SIMULAZIONI
+// ─────────────────────────────────────────────
+function togglePresetsMenu(ev){
+  ev.stopPropagation();
+  document.getElementById('presetsMenu').classList.toggle('open');
+}
+function closePresetsMenu(){
+  const m = document.getElementById('presetsMenu');
+  if(m) m.classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const m = document.getElementById('presetsMenu');
+  if(m && m.classList.contains('open') && !e.target.closest('.menu-wrap')) closePresetsMenu();
+});
+
+// Preset 1: Solo FV 3 kWp (niente batteria)
+const PRESET_1 = {
+  costFV:'6500', costBat:'0', costHP:'0', costElec:'500',
+  prodFV:'3600', degradFV:'0.40', batCap:'0', batRT:'90',
+  batCap10:'100', batCap20:'100', batCap25:'100',
+  prezzoEE:'0.388', prezzoRID:'0.100', inflEE:'2.5', inflRID:'0.5', discRate:'3.0',
+  fabbEE:'3500', rispGPL:'0',
+  totDetr:'3250', durDetr:'10', contoTermico:'0',
+  kwhRev:'0', tarRev:'0', anniRev:'0',
+  capFin:'7000', durFin:'5', tassoFin:'3.45',
+  annoMaint:'13', costoMaint:'800', maintYearly:'80',
+  _state:{ inclRev:false, useMaint:true, autoDist:true, capAuto:true }
+};
+
+// Preset 2: FV 6 kWp + Batteria 11 kWh
+const PRESET_2 = {
+  costFV:'9800', costBat:'5500', costHP:'0', costElec:'700',
+  prodFV:'7200', degradFV:'0.40', batCap:'11', batRT:'90',
+  batCap10:'92', batCap20:'78', batCap25:'68',
+  prezzoEE:'0.388', prezzoRID:'0.100', inflEE:'2.5', inflRID:'0.5', discRate:'3.0',
+  fabbEE:'5000', rispGPL:'0',
+  totDetr:'7750', durDetr:'10', contoTermico:'0',
+  kwhRev:'0', tarRev:'0', anniRev:'0',
+  capFin:'16000', durFin:'6', tassoFin:'3.45',
+  annoMaint:'13', costoMaint:'1200', maintYearly:'150',
+  _state:{ inclRev:false, useMaint:true, autoDist:true, capAuto:true }
+};
+
+// Preset 3: FV 12 kWp + Batteria 21 kWh
+const PRESET_3 = {
+  costFV:'19858', costBat:'10491', costHP:'0', costElec:'1500',
+  prodFV:'14509', degradFV:'0.40', batCap:'21', batRT:'90',
+  batCap10:'90', batCap20:'75', batCap25:'65',
+  prezzoEE:'0.388', prezzoRID:'0.100', inflEE:'2.5', inflRID:'0.5', discRate:'3.0',
+  fabbEE:'8000', rispGPL:'0',
+  totDetr:'15900', durDetr:'10', contoTermico:'0',
+  kwhRev:'0', tarRev:'0', anniRev:'0',
+  capFin:'31849', durFin:'6', tassoFin:'3.45',
+  annoMaint:'13', costoMaint:'2000', maintYearly:'250',
+  _state:{ inclRev:false, useMaint:true, autoDist:true, capAuto:true }
+};
+
+function loadPreset(n){
+  const presets = {1: PRESET_1, 2: PRESET_2, 3: PRESET_3};
+  const names = {1:'Solo FV 3 kWp', 2:'FV 6 kWp + Batteria 11 kWh', 3:'FV 12 kWp + Batteria 21 kWh'};
+  applySimulation(presets[n]);
+  setSimName(names[n]);
+  showToast(`Preset "${names[n]}" caricato`);
+}
+
+// ─────────────────────────────────────────────
+// GRAFICO ENERGETICO STAGIONALE
+// ─────────────────────────────────────────────
+// Dati mensili normalizzati: [produzioneFV_rel, autoconsIst_rel, batRel, consumoRete_rel]
+// Basati su profilo tipico italiano (nord/centro Italia, 45°N)
+const MONTHLY_PROFILE = [
+  // Gen Feb Mar Apr Mag Giu Lug Ago Set Ott Nov Dic
+  [0.38, 0.10, 0.08, 0.32],  // Gen
+  [0.48, 0.13, 0.10, 0.29],  // Feb
+  [0.72, 0.20, 0.15, 0.22],  // Mar
+  [0.92, 0.26, 0.20, 0.12],  // Apr
+  [1.12, 0.32, 0.25, 0.04],  // Mag
+  [1.20, 0.34, 0.27, 0.02],  // Giu
+  [1.22, 0.35, 0.28, 0.02],  // Lug
+  [1.15, 0.33, 0.26, 0.03],  // Ago
+  [0.88, 0.25, 0.19, 0.14],  // Set
+  [0.62, 0.18, 0.13, 0.24],  // Ott
+  [0.40, 0.11, 0.08, 0.31],  // Nov
+  [0.32, 0.09, 0.07, 0.34],  // Dic
+];
+const MONTHS_IT = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+function drawEnergyChart(){
+  const canvas = document.getElementById('chartEnergy');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth - 36;
+  const h = 200;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const p = readParams();
+  // Distribuzione mensile FV (profilo irraggiamento normalizzato)
+  const prodMeseBase = p.prodFV / 12;
+  // Distribuzione mensile consumi con pesi stagionali
+  const consMeseArr = getMonthlyConsKwh(p.fabbEE);
+
+  // Calcola valori mensili assoluti (kWh)
+  const months = MONTHLY_PROFILE.map((m, mi) => {
+    const fv = m[0] * prodMeseBase;
+    const consMese = consMeseArr[mi];
+    // autoconsumo istantaneo: intersezione produzione diurna / consumo (adattato al mese)
+    const autoI = Math.min(m[1] * prodMeseBase, consMese * 0.65);
+    // batteria: eccedenza diurna cappata a capacità fisica
+    const bat = p.batCap > 0 ? Math.min(m[2] * prodMeseBase, p.batCap * 0.9 * (consMese / (p.fabbEE/12 || 1))) : 0;
+    const rete = Math.max(0, consMese - autoI - bat * (p.batRT / 100));
+    return { fv, autoI, bat, rete, consMese };
+  });
+
+  const maxVal = Math.max(...months.map(m => Math.max(m.fv, m.autoI + m.bat + m.rete)));
+
+  const pad = {top:14, right:16, bottom:28, left:52};
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const barW = cw / 12;
+
+  function xOf(i){ return pad.left + i * barW; }
+  function yScale(v){ return ch * v / (maxVal * 1.1); }
+
+  // Griglia
+  ctx.strokeStyle = '#ebe7df'; ctx.lineWidth = 1;
+  for(let i = 0; i <= 4; i++){
+    const y = pad.top + (i / 4) * ch;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
+  }
+
+  // Barre stacked (autoconsumo + batteria + rete)
+  months.forEach((m, i) => {
+    const x = xOf(i) + barW * 0.1;
+    const bw = barW * 0.8;
+    let yBase = pad.top + ch;
+
+    // Rete (grigio)
+    const hRete = yScale(m.rete);
+    ctx.fillStyle = '#e5e7eb';
+    ctx.fillRect(x, yBase - hRete, bw, hRete);
+    yBase -= hRete;
+
+    // Batteria (viola)
+    const hBat = yScale(m.bat);
+    ctx.fillStyle = '#818cf8';
+    ctx.fillRect(x, yBase - hBat, bw, hBat);
+    yBase -= hBat;
+
+    // Autoconsumo istantaneo (verde)
+    const hAuto = yScale(m.autoI);
+    ctx.fillStyle = '#34d399';
+    ctx.fillRect(x, yBase - hAuto, bw, hAuto);
+
+    // Linea produzione FV (arancione)
+    const yFV = pad.top + ch - yScale(m.fv);
+    if(i === 0){
+      ctx.beginPath();
+      ctx.moveTo(x + bw/2, yFV);
+    } else {
+      ctx.lineTo(x + bw/2, yFV);
+    }
+  });
+  // Chiudi la linea FV
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Dots linea FV
+  months.forEach((m, i) => {
+    const x = xOf(i) + barW * 0.5;
+    const yFV = pad.top + ch - yScale(m.fv);
+    ctx.beginPath(); ctx.arc(x, yFV, 3.5, 0, Math.PI*2);
+    ctx.fillStyle = '#f59e0b'; ctx.fill();
+  });
+
+  // Etichette mesi asse X
+  ctx.fillStyle = '#a39f97';
+  ctx.font = '10px Inter, Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  MONTHS_IT.forEach((label, i) => {
+    ctx.fillText(label, xOf(i) + barW/2, h - 8);
+  });
+
+  // Etichette asse Y (kWh)
+  ctx.textAlign = 'right';
+  ctx.font = '9.5px JetBrains Mono, monospace';
+  for(let i = 0; i <= 3; i++){
+    const v = maxVal * 1.1 * (i / 3);
+    const y = pad.top + ch - yScale(v);
+    ctx.fillStyle = '#6b6862';
+    ctx.fillText(Math.round(v) + ' kWh', pad.left - 4, y + 3.5);
+  }
+
+  // ── Tooltip interattivo ──────────────────────────────────
+  canvas._energyMeta = { pad, cw, ch, barW, months, maxVal, xOf, yScale, w, h };
+
+  if(!canvas._tipHandler){
+    const tip = document.getElementById('tipEnergy');
+
+    function showEnergyTip(e){
+      const meta = canvas._energyMeta;
+      if(!meta) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const mx = clientX - rect.left;
+
+      if(mx < meta.pad.left || mx > meta.pad.left + meta.cw){ tip.classList.remove('visible'); return; }
+      const idx = Math.floor((mx - meta.pad.left) / meta.barW);
+      if(idx < 0 || idx > 11){ tip.classList.remove('visible'); return; }
+
+      const m = meta.months[idx];
+      const fmtK = v => Math.round(v).toLocaleString('it-IT') + ' kWh';
+      const pct  = v => meta.months[idx].fv > 0 ? ' (' + Math.round(v / meta.months[idx].fv * 100) + '%)' : '';
+
+      tip.innerHTML = `
+        <div class="chart-tip-title">${MONTHS_IT[idx]} — consumo ${fmtK(m.consMese)}</div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#f59e0b"></span>
+          <span class="chart-tip-label">Produzione FV</span>
+          <span class="chart-tip-val">${fmtK(m.fv)}</span>
+        </div>
+        <div class="chart-tip-sep"></div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#34d399"></span>
+          <span class="chart-tip-label">Autoconsumo ist.</span>
+          <span class="chart-tip-val">${fmtK(m.autoI)}${pct(m.autoI)}</span>
+        </div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#818cf8"></span>
+          <span class="chart-tip-label">Carica batteria</span>
+          <span class="chart-tip-val">${fmtK(m.bat)}${pct(m.bat)}</span>
+        </div>
+        <div class="chart-tip-row">
+          <span class="chart-tip-dot" style="background:#d1d5db;border:1px solid #9ca3af"></span>
+          <span class="chart-tip-label">Da rete</span>
+          <span class="chart-tip-val">${fmtK(m.rete)}</span>
+        </div>`;
+
+      tip.classList.add('visible');
+
+      const tipW = 200, tipH = 110;
+      const barCenterX = meta.xOf(idx) + meta.barW / 2;
+      let tx = barCenterX + 12;
+      let ty = 14;
+      if(tx + tipW > rect.width) tx = barCenterX - tipW - 8;
+      tip.style.left = tx + 'px';
+      tip.style.top  = ty + 'px';
+
+      // Bordo highlight sulla barra attiva
+      drawEnergyChart();
+      const ctx2 = canvas.getContext('2d');
+      const dpr2 = window.devicePixelRatio || 1;
+      ctx2.save();
+      ctx2.scale(dpr2, dpr2);
+      ctx2.strokeStyle = 'rgba(10,9,8,0.35)'; ctx2.lineWidth = 2;
+      const bx = meta.xOf(idx) + meta.barW * 0.1;
+      const bw = meta.barW * 0.8;
+      const totalH = meta.yScale(m.autoI + m.bat + m.rete);
+      ctx2.strokeRect(bx, meta.pad.top + meta.ch - totalH, bw, totalH);
+      ctx2.restore();
+    }
+
+    function hideTip(){ tip.classList.remove('visible'); drawEnergyChart(); }
+
+    canvas.addEventListener('mousemove', showEnergyTip);
+    canvas.addEventListener('touchmove', showEnergyTip, {passive:true});
+    canvas.addEventListener('mouseleave', hideTip);
+    canvas.addEventListener('touchend', hideTip, {passive:true});
+    canvas._tipHandler = true;
+  }
+}
+
+// ─────────────────────────────────────────────
 // ─────────────────────────────────────────────
 const LS_KEY = 'pianoFV_simulations';
 
@@ -2038,7 +2667,7 @@ function setMobileTab(tab, ev){
     b.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
   // Il chart va ridisegnato perché il canvas era nascosto (width=0)
-  if(target === 'results') requestAnimationFrame(drawChart);
+  if(target === 'results') requestAnimationFrame(() => { drawChart(); drawEnergyChart(); });
   // Riporta in cima lo scroll quando si cambia sezione
   window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
 }
@@ -2140,7 +2769,7 @@ document.addEventListener('click', e => {
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-window.addEventListener('resize', drawChart);
+window.addEventListener('resize', () => { drawChart(); drawEnergyChart(); });
 renderChips();
 refreshSlidersUI();
 if(!loadFromQuery()) calc();
