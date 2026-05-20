@@ -452,6 +452,72 @@ input[type=range]::-moz-range-thumb{
 .kcard.is-neg .kval{color:var(--neg)}
 .ksub{font-size:11px;color:var(--ink-3);margin-top:10px;letter-spacing:0;line-height:1.4}
 
+
+/* ─── Donut charts composizione vantaggio ─────────────────────── */
+.donut-panel{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px 22px 20px;
+  margin-bottom:16px;
+}
+.donut-panel .chart-hdr{margin-bottom:14px}
+.donut-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+@media(max-width:520px){
+  .donut-wrap{grid-template-columns:1fr}
+}
+.donut-item{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.donut-title{
+  font-size:11px;font-weight:600;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--ink-3);text-align:center;
+}
+.donut-canvas-wrap{
+  position:relative;width:180px;height:180px;flex-shrink:0;
+}
+.donut-canvas-wrap canvas{position:absolute;top:0;left:0}
+.donut-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+  width:90px;
+}
+.donut-center-val{
+  font-family:var(--font-mono);
+  font-size:15px;font-weight:600;
+  color:var(--ink);letter-spacing:-0.02em;
+  line-height:1.1;
+}
+.donut-center-val.is-pos{color:var(--pos)}
+.donut-center-val.is-neg{color:var(--neg)}
+.donut-center-lbl{
+  font-size:9.5px;color:var(--ink-3);
+  font-weight:500;margin-top:3px;
+  letter-spacing:0.04em;text-transform:uppercase;
+}
+.donut-legend{
+  display:flex;flex-direction:column;gap:5px;
+  width:100%;max-width:200px;
+}
+.donut-leg-row{
+  display:flex;align-items:center;gap:7px;
+  font-size:10.5px;color:var(--ink-2);
+}
+.donut-leg-dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+}
+.donut-leg-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.donut-leg-val{
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--ink-3);white-space:nowrap;
+}
+
+
 /* ─── Chart tooltip ───────────────────────────────────────── */
 .chart-tip{
   position:absolute;
@@ -1189,6 +1255,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
           <span class="tlabel">Includi sostituzione inverter</span>
           <div class="tswitch on" id="sw-man" onclick="toggleSwitch('sw-man','useMaint')"><div class="tknob"></div></div>
         </div>
+        <div id="maintFields">
         <div class="sep"></div>
         <div class="f2">
           <div class="f">
@@ -1199,6 +1266,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
             <div class="fl"><label>Costo intervento</label></div>
             <div class="iu"><input type="number" id="costoMaint" value="2500" oninput="calc()"><span class="unit">€</span></div>
           </div>
+        </div>
         </div>
         <div class="sep"></div>
         <div class="sl">Manutenzione ricorrente</div>
@@ -1225,7 +1293,7 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
         <div class="kval" id="kPayback">—</div>
         <div class="ksub">Senza ricorso al finanziamento</div>
       </div>
-      <div class="kcard">
+      <div class="kcard" id="kcardPaybackFin">
         <div class="klabel">Payback con finanziamento</div>
         <div class="kval" id="kPaybackFin">—</div>
         <div class="ksub">Considerando capitale finanziato e rate</div>
@@ -1239,6 +1307,38 @@ tfoot td{font-weight:600;background:var(--surface-alt);border-top:1px solid var(
         <div class="klabel">Rendimento medio</div>
         <div class="kval" id="kROI">—</div>
         <div class="ksub">Rendita media annua sull'investimento</div>
+      </div>
+    </div>
+
+
+    <!-- DONUT: composizione vantaggio -->
+    <div class="donut-panel" id="donutPanel">
+      <div class="chart-hdr">
+        <h3>Composizione del vantaggio</h3>
+      </div>
+      <div class="donut-wrap">
+        <div class="donut-item">
+          <div class="donut-title">Anno 1</div>
+          <div class="donut-canvas-wrap">
+            <canvas id="donutY1" width="180" height="180"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-val" id="donutY1Val">—</div>
+              <div class="donut-center-lbl">netto</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutY1Leg"></div>
+        </div>
+        <div class="donut-item">
+          <div class="donut-title" id="donutTotTitle">Piano 25 anni</div>
+          <div class="donut-canvas-wrap">
+            <canvas id="donutTot" width="180" height="180"></canvas>
+            <div class="donut-center">
+              <div class="donut-center-val" id="donutTotVal">—</div>
+              <div class="donut-center-lbl">netto</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutTotLeg"></div>
+        </div>
       </div>
     </div>
 
@@ -1449,6 +1549,10 @@ function toggleSwitch(swId, key){
   const sw = document.getElementById(swId);
   sw.classList.toggle('on', state[key]);
   if(key === 'autoDist') refreshSlidersUI();
+  if(key === 'useMaint'){
+    const f = document.getElementById('maintFields');
+    if(f) f.style.display = state[key] ? '' : 'none';
+  }
   calc();
 }
 
@@ -1655,7 +1759,7 @@ function calcPlan(p){
     const val_maint = val_maintExt + val_maintYr;
 
     // Totale vantaggi (include revamping solo se flag attivo)
-    const tot = val_inst + val_bat + val_rid + val_gpl + val_ee + val_detr + val_ct
+    const tot = val_inst + val_bat + val_rid + val_gpl + val_detr + val_ct
               + (p.inclRev ? val_rev : 0) + val_maint;
 
     // Cumulativi
@@ -1830,7 +1934,11 @@ function calc(){
 
   drawChart();
   drawEnergyChart();
+  drawDonutCharts(rows, p);
   updateTableColumns();
+  // Mostra/nasconde KPI payback-fin in base alla sezione finanziamento
+  const kcardFin = document.getElementById('kcardPaybackFin');
+  if(kcardFin) kcardFin.style.display = EXCLUDED_SECTIONS.has('p-fin') ? 'none' : '';
 }
 
 // ─────────────────────────────────────────────
@@ -2372,6 +2480,153 @@ function drawEnergyChart(){
     canvas.addEventListener('touchend', hideTip, {passive:true});
     canvas._tipHandler = true;
   }
+}
+
+
+// ─────────────────────────────────────────────
+// DONUT CHART — composizione vantaggio
+// ─────────────────────────────────────────────
+
+// Palette colori per le voci (ordine stabile)
+const DONUT_COLORS = {
+  inst:  '#10b981',
+  bat:   '#6366f1',
+  rid:   '#f59e0b',
+  gpl:   '#3b82f6',
+  detr:  '#8b5cf6',
+  ct:    '#06b6d4',
+  rev:   '#ec4899',
+  ee:    '#f87171',
+  maint: '#fb923c',
+};
+
+const DONUT_LABELS = {
+  inst:  'Autoconsumo ist.',
+  bat:   'Batteria',
+  rid:   'Vendita rete (RID)',
+  gpl:   'Risp. combustibile',
+  detr:  'Detrazioni fiscali',
+  ct:    'Conto Termico',
+  rev:   'Revamping',
+  ee:    'Costo EE residuo',
+  maint: 'Manutenzione',
+};
+
+function buildDonutSlices(r, p){
+  const pos = [];
+  if(r.val_inst > 0)                                          pos.push({key:'inst', v: r.val_inst});
+  if(r.val_bat  > 0 && !EXCLUDED_SECTIONS.has('p-bat'))      pos.push({key:'bat',  v: r.val_bat});
+  if(r.val_rid  > 0)                                          pos.push({key:'rid',  v: r.val_rid});
+  if(r.val_gpl  > 0 && !EXCLUDED_SECTIONS.has('p-cons'))     pos.push({key:'gpl',  v: r.val_gpl});
+  if(r.val_detr > 0 && !EXCLUDED_SECTIONS.has('p-inc'))      pos.push({key:'detr', v: r.val_detr});
+  if(r.val_ct   > 0 && !EXCLUDED_SECTIONS.has('p-inc'))      pos.push({key:'ct',   v: r.val_ct});
+  if(r.val_rev  > 0 && p.inclRev && !EXCLUDED_SECTIONS.has('p-inc'))
+                                                               pos.push({key:'rev',  v: r.val_rev});
+  return { pos };
+}
+
+function drawSingleDonut(canvas, slices, netVal, centerId, legId){
+  const dpr = window.devicePixelRatio || 1;
+  const sz = 180;
+  canvas.width  = sz * dpr; canvas.height = sz * dpr;
+  canvas.style.width  = sz + 'px'; canvas.style.height = sz + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, sz, sz);
+
+  const cx = sz/2, cy = sz/2;
+  const outerR = 82, innerR = 42;
+  const gap = 0.025;
+
+  function drawArcs(items, R_out, R_in, startAngle){
+    const total = items.reduce((s,x)=>s+x.v, 0);
+    if(total <= 0) return;
+    let a = startAngle;
+    items.forEach(item => {
+      const sweep = (item.v / total) * (Math.PI * 2) - gap;
+      if(sweep <= 0) return;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R_out, a + gap/2, a + sweep + gap/2);
+      ctx.arc(cx, cy, R_in,  a + sweep + gap/2, a + gap/2, true);
+      ctx.closePath();
+      ctx.fillStyle = DONUT_COLORS[item.key];
+      ctx.fill();
+      a += sweep + gap;
+    });
+  }
+
+  // Sfondo anello
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI*2);
+  ctx.arc(cx, cy, innerR, 0, Math.PI*2, true);
+  ctx.fillStyle = '#ede9e2'; ctx.fill();
+
+  if(!slices.pos.length){
+    // nessun dato: cerchio grigio pieno
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, 0, Math.PI*2);
+    ctx.arc(cx, cy, innerR, 0, Math.PI*2, true);
+    ctx.fillStyle = '#e0dcd6'; ctx.fill();
+  } else {
+    drawArcs(slices.pos, outerR, innerR, -Math.PI / 2);
+  }
+
+  // Centro
+  const cEl = document.getElementById(centerId);
+  if(cEl){
+    const abs = Math.abs(Math.round(netVal));
+    cEl.textContent = (netVal >= 0 ? '+€ ' : '−€ ') + abs.toLocaleString('it-IT');
+    cEl.className = 'donut-center-val ' + (netVal >= 0 ? 'is-pos' : 'is-neg');
+  }
+
+  // Legenda
+  const legEl = document.getElementById(legId);
+  if(!legEl) return;
+  let html = '';
+  const posTotal = slices.pos.reduce((s,x)=>s+x.v,0);
+  slices.pos.forEach(item => {
+    const pct = posTotal > 0 ? Math.round(item.v / posTotal * 100) : 0;
+    html += `<div class="donut-leg-row">
+      <span class="donut-leg-dot" style="background:${DONUT_COLORS[item.key]}"></span>
+      <span class="donut-leg-label">${DONUT_LABELS[item.key]}</span>
+      <span class="donut-leg-val">+€ ${Math.round(item.v).toLocaleString('it-IT')} (${pct}%)</span>
+    </div>`;
+  });
+  legEl.innerHTML = html;
+}
+
+function drawDonutCharts(rows, p){
+  if(!rows || !rows.length) return;
+
+  // Anno 1
+  const r1 = rows[0];
+  const slices1 = buildDonutSlices(r1, p);
+  const net1 = r1.val_inst + r1.val_bat + r1.val_rid + r1.val_gpl
+             + r1.val_detr + r1.val_ct + (p.inclRev ? r1.val_rev : 0)
+             + r1.val_ee + r1.val_maint;
+  drawSingleDonut(document.getElementById('donutY1'), slices1, net1, 'donutY1Val', 'donutY1Leg');
+
+  // Piano totale
+  const rTot = {
+    val_inst:  rows.reduce((s,r)=>s+r.val_inst,  0),
+    val_bat:   rows.reduce((s,r)=>s+r.val_bat,   0),
+    val_rid:   rows.reduce((s,r)=>s+r.val_rid,   0),
+    val_gpl:   rows.reduce((s,r)=>s+r.val_gpl,   0),
+    val_detr:  rows.reduce((s,r)=>s+r.val_detr,  0),
+    val_ct:    rows.reduce((s,r)=>s+r.val_ct,    0),
+    val_rev:   rows.reduce((s,r)=>s+r.val_rev,   0),
+    val_ee:    rows.reduce((s,r)=>s+r.val_ee,    0),
+    val_maint: rows.reduce((s,r)=>s+r.val_maint, 0),
+  };
+  const slicesTot = buildDonutSlices(rTot, p);
+  const netTot = rTot.val_inst + rTot.val_bat + rTot.val_rid + rTot.val_gpl
+               + rTot.val_detr + rTot.val_ct + (p.inclRev ? rTot.val_rev : 0)
+               + rTot.val_ee + rTot.val_maint;
+
+  const titEl = document.getElementById('donutTotTitle');
+  if(titEl) titEl.textContent = 'Piano ' + p.planYears + ' anni';
+
+  drawSingleDonut(document.getElementById('donutTot'), slicesTot, netTot, 'donutTotVal', 'donutTotLeg');
 }
 
 // ─────────────────────────────────────────────
